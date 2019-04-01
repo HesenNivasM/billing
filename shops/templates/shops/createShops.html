@@ -1,0 +1,144 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href={% static './bs-css/bootstrap.min.css' %}>
+<script src={% static './bs-js/jquery.min.js' %}></script>
+<script src={% static './bs-js/bootstrap.min.js' %}></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Murugesapandian Agency</title>
+    <style>
+        .btn-black{
+            background-color: #000 !important;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color:black;">
+        <a class="navbar-brand" href="#">Murugesapandian Agency</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExample05">
+            <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Shops Panel - Add Shops <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../">Back</a>
+            </li>
+            <!-- <li class="nav-item">
+                <a class="nav-link disabled" href="#">Disabled</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown05">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+            </li> -->
+            </ul>
+            <div class="form-inline my-2 my-md-0">
+            <!-- <input class="form-control" type="text" placeholder="Search"> -->
+            {% if  user.is_authenticated %}
+                    <a style="color:red;" href="../logout/">{{user.username}}-Logout</a>
+            {% endif %}
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <br><br>
+        <div class="text-center">
+            <h3>Add Shops</h3>
+            <br>
+            <button type="button" class="btn btn-black" data-toggle="modal" data-target="#exampleModal">
+                View Area Codes
+            </button>
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Area Codes List</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            <li>1.</li>
+                            <li>2.</li>
+                            <li>3.</li>
+                            <li>4.</li>
+                            <li>5.</li>
+                        </ul>   
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+            </div>           
+        </div>
+        <br>
+        <form class="container alert alert-dark" action="" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-6">
+                    <label for="name">Name:</label>
+                    <input class="form-control" type="text" name="name">
+                </div>
+                <div class="col-6">
+                    <label for="ownerName">Owner Name:</label>
+                    <input class="form-control" type="text" name="ownerName">
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-6">
+                    <label for="gstNo">GST Number:</label>
+                    <input class="form-control" type="text" name="gstNo">
+                </div>
+                <div class="col-6">
+                    <label for="areaCode">Area Code:</label>
+                    <select class="form-control" name="areaCode" id="areaCode">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-6">
+                    <label for="address">Address</label>
+                    <textarea class="form-control" name="address" id="address" cols="30" rows="5"></textarea>
+                </div>
+                <div class="col-6">
+                    <label for="phoneNo">Phone Number:</label>
+                    <input class="form-control" type="text" name="phoneNo">
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-10"></div>
+                <div class="col-2">
+                    <input class="btn btn-black" type="submit" name="createShops" value="Add Shop">
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+<script>
+    {% if return_message %}
+        alert("{{return_message}}")
+    {% endif %}
+</script>
+</html>

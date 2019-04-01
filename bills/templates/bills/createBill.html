@@ -1,0 +1,448 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href={% static './bs-css/bootstrap.min.css' %}>
+<script src={% static './bs-js/jquery.min.js' %}></script>
+<script src={% static './bs-js/bootstrap.min.js' %}></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Murugesapandian Agency</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <style>
+        html { font: 16px/1 'Open Sans', sans-serif; overflow: auto; padding: 0.5in; }
+        html { background: #999; cursor: default; }
+
+        body { box-sizing: border-box; height: 11in; margin: 0 auto; overflow: hidden; padding: 0.5in; width: 8.5in; }
+        body { background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5); }
+
+        .nopadding {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .btn-black{
+            background-color: black;
+            color: #FFF;
+        }        
+    </style>
+</head>
+<body>
+    <form action="" method="POST" id="myForm">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row">
+            <div class="col-3 text-left">
+                <p><small>Cell:9443854160</small></p>
+            </div>
+            <div class="col-6">
+                <div class="text-center">
+                    <h5><b>P. MURUGESAPANDIAN AGENCY</b></h5>
+                    <span>110, Main Bazaar, Kariapatti - 626 106</span><br>
+                    <span>Stockist : Nestle, Cavinkare, Marico</span>
+                </div>
+            </div>
+            <div class="col-3 text-left">
+                <small>GSTIN:33CKKPM7039P1ZH</small>
+                <br>
+                <small>TAMILNADU-33</small>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-8 text-left">
+            <span>Bill No: {{billNo}}</span>
+        </div>
+        <div class="col-4 text-left">
+            <div class="row">
+                <div class="col-4">
+                    <span>Date:</span>
+                </div>
+                <div class="col-8" id="dateDiv">
+                    <input class="form-control" type="date" id="billDate" name="billDate">
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-8 text-left">
+            <div class="row">
+                <div class="col-2">
+                    <span>M/s. </span>
+                </div>
+                <div class="col-10" id="shopClump">
+                    <div id="shopDiv">
+                        <select class="form-control js-example-basic-single" name="shopname" id="shopname" onchange="updateShopGst();">
+                            <option value="">-SELECT THE SHOP--</option>
+                            {% for shop in shops %}
+                                <option value="{{shop.id}}">{{shop.ownerName}} of {{shop.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4 text-left">
+            <span>GSTIN No. </span>
+            <span id="shopGst"></span>
+        </div>
+    </div>
+    <br>
+    <div name="toolbox" id="toolbox">
+        <div class="row">
+            <div class="col-6"></div>
+            <div class="col-2">
+                <button class="btn btn-black" type="button" onclick="addRow();">Add Item</button>
+            </div>
+            <div class="col-2">
+                    <button class="btn btn-black" type="button" onclick="deleteRow();">Delete Item</button>
+            </div>
+            <div id="updateDiv">
+                    <div class="col-2">
+                        <button class="btn btn-black" type="submit" >Update</button>
+                    </div>
+            </div>
+            <div id="finishDiv">
+                <div class="col-2">
+                    <button class="btn btn-black" type="button" onclick="finish();">Finish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div>
+        <form class="form-group" action="" method="POST">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th style="width:25%;">PRODUCTS</th>
+                        <th style="width:12%;">HSNCODE</th>
+                        <th style="width:12%;">QTY</th>
+                        <th style="width:12%;">MRP</th>
+                        <th style="width:12%;">RATE</th>
+                        <th>SCH%</th>
+                        <th>GST%</th>
+                        <th style="width:12%;">Value</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <br><br>
+    <hr>
+    <br>
+    <div>
+        <div class="row">
+            <div class="col-9 text-left">
+                <span><small>Details:</small></span><br>
+                <span><small>GST 5% = CGST 2.5% + SGST 2.5% = Rs. <span id="5gst">0</span></small></span><br>
+                <span><small>GST 12% = CGST 6% + SGST 6% = Rs. <span id="12gst">0</span></small></span><br>
+                <span><small>GST 18% = CGST 9% + SGST 9% = Rs. <span id="18gst">0</span></small></span><br>
+                <span><small>GST 28% = CGST 14% + SGST 14% = Rs. <span id="28gst">0</span></small></span><br>
+            </div>
+            <div class="col-3 text-left">
+                <b><span>Total Rs.<span id="grandTotal">0</span></span></b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7"></div>
+            <div class="col-5">
+                <span>For P.MURUGESAPANDIAN AGENCY</span>
+            </div>
+        </div>
+    </div>
+    </form>
+</body>
+<script>
+    var data = []
+    {% for datum in data %}
+        datum = {};
+        datum.id = "{{datum.id}}";
+        datum.name = "{{datum.name}}";
+        datum.hsnCode = "{{datum.hsnCode}}";
+        datum.mrp = "{{datum.mrp}}";
+        datum.gst = "{{datum.gst}}";
+        data.push(datum);
+    {% endfor %}
+    var shops = []
+    {% for shop in shops %}
+        shop = {};
+        shop.id = "{{shop.id}}";
+        shop.gstNo = "{{shop.gstNo}}";
+        shop.ownerName = "{{shop.ownerName}}";
+        shop.name = "{{shop.name}}";
+        shops.push(shop);
+    {% endfor %}
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+    });
+    document.getElementById('finishDiv').style.display = "none";
+    {% if return_message %}
+        alert("{{return_message}}")
+    {% endif %}
+
+    //Update the GSTIN based on the shop
+    function updateShopGst(){        
+        var shopId = document.getElementById('shopname').value;
+        shops.forEach(shop => {
+            if(shop.id == shopId){
+                document.getElementById("shopGst").innerHTML = shop.gstNo;
+            }
+        });
+    }
+
+    var count = 1;
+    function addRow(){
+        var tbody = document.getElementById('tableBody');
+        var tr = document.createElement('tr');
+        tr.setAttribute('id',count+"_row");
+        //name
+        var td = document.createElement('td');
+        td.setAttribute('id',count+"_col1");
+        var d = document.createElement('div');
+        d.setAttribute('id',count+"_clump");
+        var select = document.createElement('select');
+        select.setAttribute('class','form-control js-example-basic-single');
+        select.setAttribute('name',count+"_name");
+        select.setAttribute('id',count+"_name");
+        select.setAttribute('onChange','updateRowValues(count);');
+        var option = document.createElement('option');
+        option.appendChild(document.createTextNode("--Select the item--"));
+        select.appendChild(option);
+        data.forEach(datum => {            
+            var option = document.createElement('option');
+            option.value = datum.id;
+            option.appendChild(document.createTextNode(datum.name));
+            select.appendChild(option);
+        });
+        d.appendChild(select);
+        td.appendChild(d);
+        tr.appendChild(td);
+        //hsnCode
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col2");
+        var input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','text');
+        input.setAttribute('name',count+"_hsnCode");
+        input.setAttribute('id',count+"_hsnCode");
+        // input.setAttribute('disabled','true');
+        td.appendChild(input);
+        tr.appendChild(td);
+        //quantity
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col3");
+        input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','number');
+        input.setAttribute('name',count+"_quantity");
+        input.setAttribute('id',count+"_quantity");
+        input.setAttribute('onChange','updateRowTotal(count)');
+        td.appendChild(input);
+        tr.appendChild(td);
+        //mrp
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col4");
+        input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','text');
+        input.setAttribute('name',count+"_mrp");
+        input.setAttribute('id',count+"_mrp");
+        // input.setAttribute('disabled','true');
+        td.appendChild(input);
+        tr.appendChild(td);
+        //rate
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col5");
+        input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','text');
+        input.setAttribute('name',count+"_rate");
+        input.setAttribute('id',count+"_rate");
+        input.setAttribute('onChange','updateRowTotal(count)');
+        td.appendChild(input);
+        tr.appendChild(td);
+        //Scheme
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col6");
+        input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','text');
+        input.setAttribute('name',count+"_scheme");
+        input.setAttribute('id',count+"_scheme");        
+        input.setAttribute('onChange','updateRowTotal(count)');
+        td.appendChild(input);
+        tr.appendChild(td);
+        //gst
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col7");
+        input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','text');
+        input.setAttribute('name',count+"_gst");
+        input.setAttribute('id',count+"_gst");
+        // input.setAttribute('disabled','true');
+        td.appendChild(input);
+        tr.appendChild(td);
+        //total
+        td = document.createElement('td');
+        td.setAttribute('id',count+"_col8");
+        input = document.createElement('input');
+        input.setAttribute('class','form-control');
+        input.setAttribute('type','text');
+        input.setAttribute('name',count+"_total");
+        input.setAttribute('id',count+"_total");
+        // input.setAttribute('disabled','true');
+        td.appendChild(input);
+        tr.appendChild(td);
+        tbody.append(tr);
+        //Call Select2
+        $('.js-example-basic-single').select2();
+        count++;
+    }
+
+    function updateRowValues(value){
+        value = value-1;
+
+        var id = document.getElementById(value+"_name").value;
+        document.getElementById(value+"_hsnCode").value = data[parseInt(id)-1].hsnCode;
+        document.getElementById(value+"_mrp").value = data[parseInt(id)-1].mrp;
+        document.getElementById(value+"_rate").value = data[parseInt(id)-1].mrp;
+        document.getElementById(value+"_gst").value = data[parseInt(id)-1].gst;
+        document.getElementById(value+"_hsnCode").value = data[parseInt(id)-1].hsnCode;
+        document.getElementById(value+"_scheme").value = "0";
+    }
+
+    function updateRowTotal(value){
+        value = value-1;
+        var quantity = parseFloat(document.getElementById(value+"_quantity").value);
+        var rate = parseFloat(document.getElementById(value+"_rate").value);
+        var scheme = parseFloat(document.getElementById(value+"_scheme").value);
+        var gst = parseFloat(document.getElementById(value+"_gst").value);
+        var total = parseFloat(quantity*rate - quantity*rate*scheme/100);
+        document.getElementById(value+"_total").value = total;
+        var temp5 = 0;
+        var temp12 = 0;
+        var temp18 = 0;
+        var temp28 = 0;
+        for(var i=1;i<=value;i++){
+            var r = parseFloat(document.getElementById(i+"_rate").value);
+            var g = parseFloat(document.getElementById(i+"_gst").value);
+            var q = parseFloat(document.getElementById(i+"_quantity").value);
+            if(g==5)
+                temp5 += r*g/100*q;
+            else if(g==12)
+                temp12 += r*g/100*q;
+            else if(g==18)
+                temp18 += r*g/100*q;
+            else if(g==28)
+                temp28 += r*g/100*q;
+
+        }
+        document.getElementById('5gst').innerHTML = temp5;       
+        document.getElementById('12gst').innerHTML = temp12;       
+        document.getElementById('18gst').innerHTML = temp18;      
+        document.getElementById('28gst').innerHTML = temp28;       
+        var grandTotal = 0;
+        for(var i = 1;i <= value;i++){
+            grandTotal += parseFloat(document.getElementById(i+"_total").value);
+        }
+        document.getElementById('grandTotal').innerHTML = grandTotal;
+    }
+
+    function deleteRow(){
+        count--;
+        var r = parseFloat(document.getElementById(count+"_rate").value);
+        var g = parseFloat(document.getElementById(count+"_gst").value);
+        var q = parseFloat(document.getElementById(count+"_quantity").value);
+        var t = parseFloat(document.getElementById(count+"_total").value);
+
+        if(g==5){
+            document.getElementById('5gst').innerHTML = parseFloat(document.getElementById('5gst').innerHTML) - r*g/100*q;
+        }
+        else if(g==12){
+            document.getElementById('12gst').innerHTML = parseFloat(document.getElementById('12gst').innerHTML) - r*g/100*q;
+        }
+        else if(g==18){
+            document.getElementById('18gst').innerHTML = parseFloat(document.getElementById('18gst').innerHTML) - r*g/100*q;
+        }
+        else if(g==28){
+            document.getElementById('28gst').innerHTML = parseFloat(document.getElementById('28gst').innerHTML) - r*g/100*q;
+        }
+        document.getElementById('grandTotal').innerHTML = parseFloat(document.getElementById('grandTotal').innerHTML) - t ;
+        document.getElementById(count+"_row").remove();        
+    }
+
+    function finish(){
+        document.getElementById('toolbox').style.display = "none";
+        //To make every input field into some text node
+        var billDate = document.getElementById('billDate').value;
+        document.getElementById('dateDiv').removeChild(document.getElementById('billDate'));
+        document.getElementById('dateDiv').appendChild(document.createTextNode(billDate));
+        var shopId = document.getElementById('shopname').value;
+        var shopname = ""
+        shops.forEach(shop => {
+            if(parseInt(shop.id) == parseInt(shopId)){
+                shopname = shop.name + " of " + shop.ownerName;
+            }
+        });
+        document.getElementById('shopClump').removeChild(document.getElementById('shopDiv'));
+        document.getElementById('shopClump').appendChild(document.createTextNode(shopname));
+        for(i=1;i<count;i++){
+            var nameId = document.getElementById(i+"_name").value;
+            var hsnCode  = document.getElementById(i+"_hsnCode").value;
+            var quantity = document.getElementById(i+"_quantity").value;
+            var mrp = document.getElementById(i+"_mrp").value;
+            var rate = document.getElementById(i+"_rate").value;
+            var scheme = document.getElementById(i+"_scheme").value;
+            var gst = document.getElementById(i+"_gst").value;
+            var total = document.getElementById(i+"_total").value;
+            var name;
+            data.forEach(datum => {
+                if(datum.id == nameId){
+                    name = datum.name;
+                }
+            });
+            document.getElementById(i+"_col1").removeChild(document.getElementById(i+"_clump"));
+            document.getElementById(i+"_col1").appendChild(document.createTextNode(name));
+            document.getElementById(i+"_col2").removeChild(document.getElementById(i+"_hsnCode"));
+            document.getElementById(i+"_col2").appendChild(document.createTextNode(hsnCode));
+            document.getElementById(i+"_col3").removeChild(document.getElementById(i+"_quantity"));
+            document.getElementById(i+"_col3").appendChild(document.createTextNode(quantity));
+            document.getElementById(i+"_col4").removeChild(document.getElementById(i+"_mrp"));
+            document.getElementById(i+"_col4").appendChild(document.createTextNode(mrp));
+            document.getElementById(i+"_col5").removeChild(document.getElementById(i+"_rate"));
+            document.getElementById(i+"_col5").appendChild(document.createTextNode(rate));
+            document.getElementById(i+"_col6").removeChild(document.getElementById(i+"_scheme"));
+            document.getElementById(i+"_col6").appendChild(document.createTextNode(scheme));
+            document.getElementById(i+"_col7").removeChild(document.getElementById(i+"_gst"));
+            document.getElementById(i+"_col7").appendChild(document.createTextNode(gst));
+            document.getElementById(i+"_col8").removeChild(document.getElementById(i+"_total"));
+            document.getElementById(i+"_col8").appendChild(document.createTextNode(total));
+        }
+    }
+
+    $('#myForm').submit(function(){
+        var action = $(this).attr('action');
+        var that = $(this);
+        $.ajax({
+            url: action,
+            type: 'POST',
+            data: that.serialize()
+            ,success: function(data){
+                document.getElementById("updateDiv").style.display = "none";
+                document.getElementById("finishDiv").style.display = "block";
+            }
+        });
+        return false;
+    });
+
+</script>
+</html>

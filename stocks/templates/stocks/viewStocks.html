@@ -1,0 +1,144 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href={% static './bs-css/bootstrap.min.css' %}>
+<script src={% static './bs-js/jquery.min.js' %}></script>
+<script src={% static './bs-js/bootstrap.min.js' %}></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Murugesapandian Agency</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <style>
+        .btn-black{
+            background-color: #000 !important;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color:black;">
+        <a class="navbar-brand" href="#">Murugesapandian Agency</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExample05">
+            <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Stocks Panel - View Stocks <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../">Back</a>
+            </li>
+            <!-- <li class="nav-item">
+                <a class="nav-link disabled" href="#">Disabled</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown05">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+            </li> -->
+            </ul>
+            <div class="form-inline my-2 my-md-0">
+            <!-- <input class="form-control" type="text" placeholder="Search"> -->
+            {% if  user.is_authenticated %}
+                    <a style="color:red;" href="../logout/">{{user.username}}-Logout</a>
+            {% endif %}
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <br><br>
+        <div class="text-center">
+            <h3>View Stocks</h3>            
+        </div>
+        <br>
+        <form class="container" action="" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-10">
+                    <label for="stock">Select the stock to be Viewd:</label>
+                    <select class="form-control js-example-basic-single" name="stock">
+                        {% for stock in stocks %}
+                            <option value="{{stock.id}}">{{stock.name}}-{{stock.stockCode}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2">
+                    <br>
+                    <input class="btn btn-black" type="submit" name="selectStock">
+                </div>
+            </div>
+        </form>
+        {% if stockData %}
+            <div class="container alert alert-dark" action="" method="POST">
+                <div class="text-center">
+                    <h3>Stock Details</h3>
+                </div>
+                <br><br>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-6">
+                        <label for="name">Name:</label>
+                        <input class="form-control" type="text" name="name" value="{{stockData.name}}" disabled>
+                    </div>
+                    <div class="col-6">
+                        <label for="quantity">Quantity:</label>
+                        <input class="form-control" type="number" id="quantity" name="quantity" value="{{stockData.quantity}}" disabled>
+                    </div>                    
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-6">
+                        <label for="hsnCode">HSN Number for the product:</label>
+                        <input class="form-control" type="text" name="hsnCode" value="{{stockData.hsnCode}}" disabled>
+                    </div>
+                    <div class="col-6">
+                        <label for="stockCode">Stock Code for the product:</label>
+                        <select class="form-control" name="stockCode" id="stockCode" disabled>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-6">
+                        <label for="mrp">MRP of individual product:</label>
+                        <input class="form-control" type="text" name="mrp" value="{{stockData.mrp}}" disabled>
+                    </div>
+                    <div class="col-6">
+                        <label for="gst">GST Percentage:</label>
+                        <select class="form-control" name="gst" id="gst" disabled>
+                            <option value="5">5</option>
+                            <option value="12">12</option>
+                            <option value="18">18</option>
+                            <option value="24">24</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
+            </div>
+        {% endif %}
+    </div>
+</body>
+<script>
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+    });
+    {% if stockData %}
+        document.getElementById('stockCode').value={{stockData.stockCode}};
+        document.getElementById('gst').value={{stockData.gst}};
+    {% endif %}
+</script>
+</html>
